@@ -1,98 +1,115 @@
 import { useState, useRef, useCallback } from 'react';
-import { ChatMessage, MessageType, ChatTheme, defaultThemes } from '@/types/chat';
-import { PhoneFrame } from '@/components/chat/PhoneFrame';
-import { ChatBubble } from '@/components/chat/ChatBubble';
-import { ComponentPicker } from '@/components/chat/ComponentPicker';
-import { MessageEditor } from '@/components/chat/MessageEditor';
-import { ExportPanel } from '@/components/chat/ExportPanel';
-import { ThemePicker } from '@/components/chat/ThemePicker';
-import { SettingsPanel } from '@/components/chat/SettingsPanel';
-import { Sparkles, Trash2 } from 'lucide-react';
+import { ChatMessage, teamsTheme } from '@/types/chat';
+import { TeamsChatBubble } from '@/components/chat/TeamsChatBubble';
+import { TeamsMessageInput } from '@/components/chat/TeamsMessageInput';
+import { Download, Upload, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
 
 const initialMessages: ChatMessage[] = [
   {
     id: '1',
     type: 'text',
-    sender: 'bot',
-    content: 'Hey! Want to grab dinner tonight?',
-    timestamp: '6:30 PM',
+    sender: 'user',
+    content: 'Hi',
+    senderName: 'John',
+    timestamp: '11:06',
   },
   {
     id: '2',
     type: 'text',
-    sender: 'user',
-    content: 'Sure! What are you thinking?',
-    timestamp: '6:31 PM',
+    sender: 'bot',
+    content: 'Hi John, I can help you with Excess Overtime requests. What would you like to do?',
+    senderName: 'Morris',
+    timestamp: '11:06',
   },
   {
     id: '3',
     type: 'buttons',
     sender: 'bot',
-    content: 'Pick a cuisine:',
-    buttons: ['Italian 🍝', 'Japanese 🍣', 'Mexican 🌮'],
-    timestamp: '6:32 PM',
+    content: 'Submit Excess OT Request or View My Past Requests',
+    senderName: 'Morris',
+    timestamp: '11:06',
+  },
+  {
+    id: '4',
+    type: 'text',
+    sender: 'user',
+    content: "I'm not John, I'm Harry.",
+    senderName: 'John',
+    timestamp: '11:07',
+  },
+  {
+    id: '5',
+    type: 'text',
+    sender: 'bot',
+    content: "Thanks for letting me know. However, I'm currently connected to John's Microsoft Teams account, and I can only process requests for the logged-in user.",
+    senderName: 'Morris',
+    timestamp: '11:07',
+  },
+  {
+    id: '6',
+    type: 'text',
+    sender: 'bot',
+    content: 'Please sign in using your own Teams account and try again.',
+    senderName: 'Morris',
+    timestamp: '11:07',
   },
 ];
 
 export default function Index() {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
-  const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
-  const [newMessageType, setNewMessageType] = useState<MessageType | null>(null);
-  const [currentTheme, setCurrentTheme] = useState<ChatTheme>(defaultThemes[0]);
-  const [contactName, setContactName] = useState('Alex');
-  const phoneRef = useRef<HTMLDivElement>(null);
+  const [senderName, setSenderName] = useState('John');
+  const [receiverName, setReceiverName] = useState('Morris');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const chatRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const handleAddComponent = (type: MessageType) => {
-    setSelectedMessage(null);
-    setIsCreatingNew(true);
-    setNewMessageType(type);
+  const handleSendMessage = (content: string) => {
+    if (!content.trim()) return;
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'text',
+      sender: 'user',
+      content,
+      senderName,
+      timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+    };
+    setMessages([...messages, newMessage]);
   };
 
-  const handleSaveMessage = (message: ChatMessage) => {
-    if (isCreatingNew) {
-      setMessages([...messages, message]);
-    } else {
-      setMessages(messages.map((m) => (m.id === message.id ? message : m)));
-    }
-    setSelectedMessage(null);
-    setIsCreatingNew(false);
-    setNewMessageType(null);
-  };
-
-  const handleDeleteMessage = (id: string) => {
-    setMessages(messages.filter((m) => m.id !== id));
-    if (selectedMessage?.id === id) {
-      setSelectedMessage(null);
-    }
-  };
-
-  const handleClearAll = () => {
-    setMessages([]);
-    setSelectedMessage(null);
+  const handleReceiveMessage = (content: string) => {
+    if (!content.trim()) return;
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'text',
+      sender: 'bot',
+      content,
+      senderName: receiverName,
+      timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+    };
+    setMessages([...messages, newMessage]);
   };
 
   const handleExport = useCallback(async () => {
-    if (!phoneRef.current) return;
+    if (!chatRef.current) return;
 
     try {
       const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(phoneRef.current, {
-        backgroundColor: null,
+      const canvas = await html2canvas(chatRef.current, {
+        backgroundColor: isDarkMode ? '#292929' : '#f5f5f5',
         scale: 2,
       });
 
       const link = document.createElement('a');
-      link.download = 'chat-meme.png';
+      link.download = 'teams-chat.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
 
       toast({
-        title: "Exported!",
-        description: "Your chat meme has been downloaded.",
+        title: "Downloaded!",
+        description: "Your Teams chat has been downloaded.",
       });
     } catch (error) {
       toast({
@@ -101,121 +118,106 @@ export default function Index() {
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [toast, isDarkMode]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-teams-dark' : 'bg-teams-light'}`}>
       {/* Header */}
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-effect">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
+      <header className={`border-b ${isDarkMode ? 'border-teams-border-dark bg-teams-dark' : 'border-teams-border bg-white'}`}>
+        <div className="container mx-auto px-4 py-3 flex items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded bg-teams-purple flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.35 8.04c-.68 0-1.29.2-1.82.54V7c0-1.1-.9-2-2-2h-3.18c-.36-.6-1.01-1-1.76-1s-1.4.4-1.76 1H5.65c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h9.88c.21 0 .42-.03.62-.08.57.53 1.33.85 2.17.85 1.77 0 3.21-1.44 3.21-3.21V11.25c0-1.77-1.44-3.21-3.18-3.21zM6 16.5v-9h8v9H6zm13.35.06c-.66 0-1.2-.54-1.2-1.2v-4.11c0-.66.54-1.2 1.2-1.2s1.2.54 1.2 1.2v4.11c0 .66-.54 1.2-1.2 1.2z"/>
+              </svg>
             </div>
-            <div>
-              <h1 className="text-xl font-bold gradient-text">ChatMeme</h1>
-              <p className="text-xs text-muted-foreground">Create interactive chat memes</p>
-            </div>
+            <span className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-teams-purple'}`}>
+              TeamsMemes
+            </span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClearAll}
-            className="text-muted-foreground hover:text-destructive"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Clear All
-          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="flex gap-8 justify-center items-start">
-          {/* Left Sidebar - Components & Settings */}
-          <div className="w-72 space-y-6">
-            <div className="sidebar-panel">
-              <ComponentPicker onSelect={handleAddComponent} />
-            </div>
-            <div className="sidebar-panel">
-              <ThemePicker currentTheme={currentTheme} onSelect={setCurrentTheme} />
-            </div>
-            <div className="sidebar-panel">
-              <SettingsPanel 
-                contactName={contactName} 
-                onContactNameChange={setContactName} 
+      <main className="container mx-auto px-4 py-8 max-w-3xl">
+        <h1 className={`text-2xl font-bold text-center mb-8 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+          Ready, steady, chat!
+        </h1>
+
+        {/* Message Input Controls */}
+        <div className="space-y-4 mb-6">
+          <TeamsMessageInput
+            name={senderName}
+            onNameChange={setSenderName}
+            onSend={handleSendMessage}
+            buttonLabel="Send"
+            buttonColor="teams"
+            isDarkMode={isDarkMode}
+          />
+          <TeamsMessageInput
+            name={receiverName}
+            onNameChange={setReceiverName}
+            onSend={handleReceiveMessage}
+            buttonLabel="Receive"
+            buttonColor="teams"
+            isDarkMode={isDarkMode}
+          />
+        </div>
+
+        {/* Chat Preview */}
+        <div
+          ref={chatRef}
+          className={`rounded-lg border p-4 min-h-[400px] ${
+            isDarkMode 
+              ? 'bg-teams-chat-dark border-teams-border-dark' 
+              : 'bg-teams-chat-light border-teams-border'
+          }`}
+        >
+          {/* Dark Mode Toggle */}
+          <div className="flex justify-end mb-4">
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={isDarkMode}
+                onCheckedChange={setIsDarkMode}
+                className="data-[state=checked]:bg-teams-purple"
               />
+              {isDarkMode ? (
+                <Moon className="w-4 h-4 text-gray-400" />
+              ) : (
+                <Sun className="w-4 h-4 text-gray-500" />
+              )}
             </div>
           </div>
 
-          {/* Phone Preview */}
-          <div 
-            ref={phoneRef}
-            className="flex-shrink-0"
-            style={{
-              ['--chat-sender' as string]: currentTheme.senderColor,
-              ['--chat-receiver' as string]: currentTheme.receiverColor,
-            }}
+          {/* Messages */}
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <TeamsChatBubble
+                key={message.id}
+                message={message}
+                isDarkMode={isDarkMode}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center gap-4 mt-6">
+          <Button
+            onClick={handleExport}
+            className="bg-teams-purple hover:bg-teams-purple-dark text-white"
           >
-            <PhoneFrame contactName={contactName}>
-              {messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                  <p className="text-sm">No messages yet</p>
-                  <p className="text-xs mt-1">Add components from the left panel</p>
-                </div>
-              ) : (
-                messages.map((message) => (
-                  <ChatBubble
-                    key={message.id}
-                    message={message}
-                    isSelected={selectedMessage?.id === message.id}
-                    onClick={() => {
-                      setIsCreatingNew(false);
-                      setNewMessageType(null);
-                      setSelectedMessage(message);
-                    }}
-                    onDelete={() => handleDeleteMessage(message.id)}
-                  />
-                ))
-              )}
-            </PhoneFrame>
-          </div>
-
-          {/* Right Sidebar - Editor & Export */}
-          <div className="w-72 space-y-6">
-            <div className="sidebar-panel">
-              {(selectedMessage || isCreatingNew) ? (
-                <MessageEditor
-                  message={selectedMessage}
-                  isNew={isCreatingNew}
-                  newType={newMessageType || undefined}
-                  onSave={handleSaveMessage}
-                  onCancel={() => {
-                    setSelectedMessage(null);
-                    setIsCreatingNew(false);
-                    setNewMessageType(null);
-                  }}
-                />
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p className="text-sm">Select a message to edit</p>
-                  <p className="text-xs mt-1">or add a new component</p>
-                </div>
-              )}
-            </div>
-            <div className="sidebar-panel">
-              <ExportPanel onExport={handleExport} />
-            </div>
-          </div>
+            <Download className="w-4 h-4 mr-2" />
+            Download
+          </Button>
+          <Button
+            className="bg-teams-purple hover:bg-teams-purple-dark text-white"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Publish
+          </Button>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-4">
-        <div className="container mx-auto px-4 text-center text-xs text-muted-foreground">
-          Create and share interactive chat memes • Built with ❤️
-        </div>
-      </footer>
     </div>
   );
 }
