@@ -15,10 +15,12 @@ export interface ChatMessage {
   senderName?: string;
   buttons?: string[];
   listItems?: string[];
+  selectedItems?: number[];
   cardTitle?: string;
   cardDescription?: string;
   cardImage?: string;
   imageUrl?: string;
+  selectedDate?: string;
   timestamp?: string;
 }
 
