@@ -87,6 +87,14 @@ export default function Index() {
     setMessages([]);
   };
 
+  const handleDeleteMessage = (id: string) => {
+    setMessages(messages.filter((m) => m.id !== id));
+  };
+
+  const handleUpdateMessage = (id: string, updates: Partial<ChatMessage>) => {
+    setMessages(messages.map((m) => (m.id === id ? { ...m, ...updates } : m)));
+  };
+
   const handleExport = useCallback(async () => {
     if (!chatRef.current) return;
 
@@ -123,7 +131,7 @@ export default function Index() {
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded bg-teams-purple flex items-center justify-center">
               <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19.35 8.04c-.68 0-1.29.2-1.82.54V7c0-1.1-.9-2-2-2h-3.18c-.36-.6-1.01-1-1.76-1s-1.4.4-1.76 1H5.65c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h9.88c.21 0 .42-.03.62-.08.57.53 1.33.85 2.17.85 1.77 0 3.21-1.44 3.21-3.21V11.25c0-1.77-1.44-3.21-3.18-3.21zM6 16.5v-9h8v9H6zm13.35.06c-.66 0-1.2-.54-1.2-1.2v-4.11c0-.66.54-1.2 1.2-1.2s1.2.54 1.2 1.2v4.11c0 .66-.54 1.2-1.2 1.2z"/>
+                <path d="M19.35 8.04c-.68 0-1.29.2-1.82.54V7c0-1.1-.9-2-2-2h-3.18c-.36-.6-1.01-1-1.76-1s-1.4.4-1.76 1H5.65c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h9.88c.21 0 .42-.03.62-.08.57.53 1.33.85 2.17.85 1.77 0 3.21-1.44 3.21-3.21V11.25c0-1.77-1.44-3.21-3.18-3.21zM6 16.5v-9h8v9H6zm13.35.06c-.66 0-1.2-.54-1.2-1.2v-4.11c0-.66.54-1.2 1.2-1.2s1.2.54 1.2 1.2v4.11c0 .66-.54 1.2-1.2 1.2z" />
               </svg>
             </div>
             <span className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-teams-purple'}`}>
@@ -193,11 +201,10 @@ export default function Index() {
         {/* Chat Preview */}
         <div
           ref={chatRef}
-          className={`rounded-lg border p-4 min-h-[400px] ${
-            isDarkMode 
-              ? 'bg-teams-chat-dark border-teams-border-dark' 
-              : 'bg-teams-chat-light border-teams-border'
-          }`}
+          className={`rounded-lg border p-4 min-h-[400px] ${isDarkMode
+            ? 'bg-teams-chat-dark border-teams-border-dark'
+            : 'bg-teams-chat-light border-teams-border'
+            }`}
         >
           {/* Dark Mode Toggle */}
           <div className="flex justify-end mb-4">
@@ -227,6 +234,8 @@ export default function Index() {
                   key={message.id}
                   message={message}
                   isDarkMode={isDarkMode}
+                  onDelete={() => handleDeleteMessage(message.id)}
+                  onUpdate={(updates) => handleUpdateMessage(message.id, updates)}
                 />
               ))
             )}

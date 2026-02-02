@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, X } from 'lucide-react';
 
 interface TeamsMessageEditorProps {
@@ -28,6 +29,7 @@ export function TeamsMessageEditor({
   const [content, setContent] = useState('');
   const [buttons, setButtons] = useState<string[]>(['Option 1', 'Option 2']);
   const [listItems, setListItems] = useState<string[]>(['Item 1', 'Item 2', 'Item 3']);
+  const [allowOther, setAllowOther] = useState(false);
   const [cardTitle, setCardTitle] = useState('Card Title');
   const [cardDescription, setCardDescription] = useState('Card description goes here');
   const [imageUrl, setImageUrl] = useState('');
@@ -53,6 +55,7 @@ export function TeamsMessageEditor({
     }
     if (type === 'list') {
       message.listItems = listItems.filter(i => i.trim());
+      message.allowOther = allowOther;
     }
     if (type === 'card') {
       message.cardTitle = cardTitle;
@@ -169,9 +172,13 @@ export function TeamsMessageEditor({
                 </Button>
               </div>
             ))}
-            <Button variant="outline" size="sm" onClick={addListItem} className="mt-2">
-              <Plus className="w-4 h-4 mr-1" /> Add Item
+            <Button variant="outline" size="sm" onClick={addListItem} className="mt-2 text-xs">
+              <Plus className="w-3 h-3 mr-1" /> Add Item
             </Button>
+          </div>
+          <div className="flex items-center space-x-2 mt-4">
+            <Checkbox id="allowOther" checked={allowOther} onCheckedChange={(c) => setAllowOther(c === true)} />
+            <Label htmlFor="allowOther" className={labelClass}>Allow "Other" option with text input</Label>
           </div>
         </div>
       )}

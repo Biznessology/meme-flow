@@ -22,6 +22,9 @@ export interface ChatMessage {
   imageUrl?: string;
   selectedDate?: string;
   timestamp?: string;
+  allowOther?: boolean;
+  otherText?: string;
+  isOtherSelected?: boolean;
 }
 
 export interface ChatTheme {
