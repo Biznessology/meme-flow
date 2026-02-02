@@ -50,9 +50,20 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        chat: {
-          sender: "hsl(var(--chat-sender))",
-          receiver: "hsl(var(--chat-receiver))",
+        // Teams colors
+        teams: {
+          purple: "#5b5fc7",
+          "purple-dark": "#4b4faa",
+          light: "#f0f4f8",
+          dark: "#1f1f1f",
+          "chat-light": "#f5f5f5",
+          "chat-dark": "#292929",
+          sender: "#e8ebf5",
+          "sender-dark": "#3d3d4e",
+          receiver: "#ffffff",
+          "receiver-dark": "#2d2d3a",
+          border: "#e0e0e0",
+          "border-dark": "#3a3a3a",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
