@@ -1,15 +1,20 @@
 import { ChatMessage } from '@/types/chat';
-import { Calendar, Check, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Check, Trash2, Edit2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
 
 interface TeamsChatBubbleProps {
   message: ChatMessage;
   isDarkMode: boolean;
   onDelete?: () => void;
   onUpdate?: (updates: Partial<ChatMessage>) => void;
+  onEdit?: () => void;
 }
 
-export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate }: TeamsChatBubbleProps) {
+export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdit }: TeamsChatBubbleProps) {
   const isUser = message.sender === 'user';
 
   const renderContent = () => {
@@ -160,13 +165,48 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate }: Tea
             <p className={`text-sm mb-3 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
               {message.content}
             </p>
-            <button className={`flex items-center gap-2 px-3 py-2 rounded border text-sm ${isDarkMode
-              ? 'border-gray-500 bg-gray-700 text-gray-200'
-              : 'border-gray-300 bg-white text-gray-700'
-              }`}>
-              <Calendar className="w-4 h-4 text-teams-purple" />
-              {message.selectedDate || 'Select a date'}
-            </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={`flex items-center gap-2 px-3 py-2 rounded border text-sm w-full justify-start ${isDarkMode
+                    ? 'border-gray-500 bg-gray-700 text-gray-200'
+                    : 'border-gray-300 bg-white text-gray-700'
+                    }`}
+                >
+                  <CalendarIcon className="w-4 h-4 text-teams-purple" />
+                  {message.startDate ? (
+                    message.endDate ? (
+                      <>
+                        {format(new Date(message.startDate), 'MMM dd')} -{' '}
+                        {format(new Date(message.endDate), 'MMM dd, yyyy')}
+                      </>
+                    ) : (
+                      format(new Date(message.startDate), 'MMM dd, yyyy')
+                    )
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={message.startDate ? new Date(message.startDate) : undefined}
+                  selected={{
+                    from: message.startDate ? new Date(message.startDate) : undefined,
+                    to: message.endDate ? new Date(message.endDate) : undefined,
+                  }}
+                  onSelect={(range) => {
+                    onUpdate?.({
+                      startDate: range?.from,
+                      endDate: range?.to
+                    });
+                  }}
+                  numberOfMonths={1}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         );
 
@@ -200,13 +240,22 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate }: Tea
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} group relative items-start gap-2`}>
       {!isUser && (
-        <button
-          onClick={onDelete}
-          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity self-center"
-          title="Delete message"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity self-center">
+          <button
+            onClick={onEdit}
+            className="p-1 text-gray-400 hover:text-teams-purple transition-colors"
+            title="Edit message"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onDelete}
+            className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+            title="Delete message"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       )}
 
       <div
@@ -233,13 +282,22 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate }: Tea
       </div>
 
       {isUser && (
-        <button
-          onClick={onDelete}
-          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity self-center"
-          title="Delete message"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity self-center">
+          <button
+            onClick={onEdit}
+            className="p-1 text-gray-400 hover:text-teams-purple transition-colors"
+            title="Edit message"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onDelete}
+            className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+            title="Delete message"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       )}
     </div>
   );

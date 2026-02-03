@@ -1,9 +1,9 @@
-export type MessageType = 
-  | 'text' 
-  | 'buttons' 
-  | 'list' 
-  | 'card' 
-  | 'datepicker' 
+export type MessageType =
+  | 'text'
+  | 'buttons'
+  | 'list'
+  | 'card'
+  | 'datepicker'
   | 'image'
   | 'typing';
 
@@ -25,6 +25,8 @@ export interface ChatMessage {
   allowOther?: boolean;
   otherText?: string;
   isOtherSelected?: boolean;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export interface ChatTheme {

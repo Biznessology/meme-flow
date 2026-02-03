@@ -15,6 +15,7 @@ interface TeamsMessageEditorProps {
   onSave: (message: ChatMessage) => void;
   onCancel: () => void;
   isDarkMode: boolean;
+  initialData?: ChatMessage;
 }
 
 export function TeamsMessageEditor({
@@ -24,15 +25,16 @@ export function TeamsMessageEditor({
   onSave,
   onCancel,
   isDarkMode,
+  initialData,
 }: TeamsMessageEditorProps) {
-  const [sender, setSender] = useState<'user' | 'bot'>('bot');
-  const [content, setContent] = useState('');
-  const [buttons, setButtons] = useState<string[]>(['Option 1', 'Option 2']);
-  const [listItems, setListItems] = useState<string[]>(['Item 1', 'Item 2', 'Item 3']);
-  const [allowOther, setAllowOther] = useState(false);
-  const [cardTitle, setCardTitle] = useState('Card Title');
-  const [cardDescription, setCardDescription] = useState('Card description goes here');
-  const [imageUrl, setImageUrl] = useState('');
+  const [sender, setSender] = useState<'user' | 'bot'>(initialData?.sender || 'bot');
+  const [content, setContent] = useState(initialData?.content || '');
+  const [buttons, setButtons] = useState<string[]>(initialData?.buttons || ['Option 1', 'Option 2']);
+  const [listItems, setListItems] = useState<string[]>(initialData?.listItems || ['Item 1', 'Item 2', 'Item 3']);
+  const [allowOther, setAllowOther] = useState(initialData?.allowOther || false);
+  const [cardTitle, setCardTitle] = useState(initialData?.cardTitle || 'Card Title');
+  const [cardDescription, setCardDescription] = useState(initialData?.cardDescription || 'Card description goes here');
+  const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
 
   const inputClass = isDarkMode
     ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400'
@@ -42,12 +44,12 @@ export function TeamsMessageEditor({
 
   const handleSave = () => {
     const message: ChatMessage = {
-      id: Date.now().toString(),
+      id: initialData?.id || Date.now().toString(),
       type,
       sender,
       content,
       senderName: sender === 'user' ? senderName : receiverName,
-      timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+      timestamp: initialData?.timestamp || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
     };
 
     if (type === 'buttons') {
@@ -89,7 +91,7 @@ export function TeamsMessageEditor({
   return (
     <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
       <h3 className={`font-semibold mb-4 ${labelClass}`}>
-        Add {type.charAt(0).toUpperCase() + type.slice(1)} Message
+        {initialData ? 'Edit' : 'Add'} {type.charAt(0).toUpperCase() + type.slice(1)} Message
       </h3>
 
       {/* Sender Selection */}
@@ -239,7 +241,7 @@ export function TeamsMessageEditor({
           Cancel
         </Button>
         <Button onClick={handleSave} className="bg-teams-purple hover:bg-teams-purple-dark text-white">
-          Add Message
+          {initialData ? 'Save Changes' : 'Add Message'}
         </Button>
       </div>
     </div>
