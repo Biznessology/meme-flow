@@ -5,7 +5,8 @@ import { TeamsMessageInput } from '@/components/chat/TeamsMessageInput';
 import { TeamsComponentPicker } from '@/components/chat/TeamsComponentPicker';
 import { TeamsMessageEditor } from '@/components/chat/TeamsMessageEditor';
 import { TeamsSidebar } from '@/components/chat/TeamsSidebar';
-import { Download, Upload, Moon, Sun, Trash2, Menu, Save } from 'lucide-react';
+import { JsonEditorDialog } from '@/components/chat/JsonEditorDialog';
+import { Download, Upload, Moon, Sun, Trash2, Menu, Save, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
@@ -56,6 +57,7 @@ export default function Index() {
   const [currentScenarioId, setCurrentScenarioId] = useState<string | undefined>(undefined);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [isJsonEditorOpen, setIsJsonEditorOpen] = useState(false);
   const [newScenarioName, setNewScenarioName] = useState('');
 
   const chatRef = useRef<HTMLDivElement>(null);
@@ -264,6 +266,20 @@ export default function Index() {
     }
   }, [toast, isDarkMode]);
 
+  const handleJsonImport = (data: any) => {
+    if (data.messages) setMessages(data.messages);
+    if (data.senderName) setSenderName(data.senderName);
+    if (data.receiverName) setReceiverName(data.receiverName);
+    // Optional: import theme or other settings if present in JSON
+  };
+
+  const getChatState = () => ({
+    messages,
+    senderName,
+    receiverName,
+    // Add other relevant state here if needed for export
+  });
+
   return (
     <div className={`min-h-screen flex ${isDarkMode ? 'bg-teams-dark' : 'bg-teams-light'}`}>
 
@@ -320,6 +336,25 @@ export default function Index() {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsJsonEditorOpen(true)}
+                className={isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}
+                title="Edit JSON"
+              >
+                <Code className="w-4 h-4 mr-2" />
+                JSON
+              </Button>
+
+              <JsonEditorDialog
+                open={isJsonEditorOpen}
+                onOpenChange={setIsJsonEditorOpen}
+                currentData={getChatState()}
+                onImport={handleJsonImport}
+                isDarkMode={isDarkMode}
+              />
 
               <Button
                 variant="ghost"
