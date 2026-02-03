@@ -345,7 +345,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
 
       <div
         data-export-bubble="true"
-        className={`max-w-[85%] rounded-lg px-3 py-1.5 whitespace-pre-wrap flex flex-col gap-0.5 leading-normal ${isUser
+        className={`max-w-[65%] rounded-lg px-3 py-1.5 whitespace-pre-wrap flex flex-col gap-0.5 leading-normal ${isUser
           ? isDarkMode
             ? 'bg-teams-sender-dark text-white'
             : 'bg-teams-sender text-gray-800'
