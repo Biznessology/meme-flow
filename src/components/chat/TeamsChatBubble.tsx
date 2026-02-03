@@ -35,7 +35,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
       case 'buttons':
         return (
           <div>
-            <p className={`text-sm mb-3 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+            <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
               {message.content}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -43,7 +43,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
                 <button
                   key={index}
                   data-export-button="true"
-                  className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${isDarkMode
+                  className={`px-2 py-1 rounded text-xs font-medium border transition-colors ${isDarkMode
                     ? 'border-teams-purple text-teams-purple hover:bg-teams-purple hover:text-white'
                     : 'border-teams-purple text-teams-purple hover:bg-teams-purple hover:text-white'
                     }`}
@@ -84,7 +84,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
                       <Check className="w-3 h-3 text-teams-purple" />
                     )}
                   </div>
-                  <span className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
                     {item}
                   </span>
                 </div>
@@ -109,7 +109,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
                         <Check className="w-3 h-3 text-teams-purple" />
                       )}
                     </div>
-                    <span className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    <span className={`text-xs ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
                       Other
                     </span>
                   </div>
@@ -309,7 +309,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
 
       default:
         return (
-          <p className={`text-sm m-0 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+          <p className={`text-xs m-0 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
             {message.content}
           </p>
         );
@@ -345,7 +345,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
 
       <div
         data-export-bubble="true"
-        className={`max-w-[85%] rounded-lg px-4 py-2 whitespace-pre-wrap flex flex-col gap-0.5 leading-normal ${isUser
+        className={`max-w-[85%] rounded-lg px-3 py-1.5 whitespace-pre-wrap flex flex-col gap-0.5 leading-normal ${isUser
           ? isDarkMode
             ? 'bg-teams-sender-dark text-white'
             : 'bg-teams-sender text-gray-800'
@@ -356,10 +356,10 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
       >
         {message.type !== 'typing' && (
           <div className="flex items-center gap-2">
-            <span className={`font-semibold text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            <span className={`font-semibold text-xs ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               {message.senderName}
             </span>
-            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <span className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               {message.timestamp}
             </span>
           </div>
