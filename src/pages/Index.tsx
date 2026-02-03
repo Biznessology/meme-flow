@@ -212,6 +212,38 @@ export default function Index() {
       const canvas = await html2canvas(chatRef.current, {
         backgroundColor: isDarkMode ? '#292929' : '#f5f5f5',
         scale: 2,
+        onclone: (clonedDoc) => {
+          const bubbles = clonedDoc.querySelectorAll('[data-export-bubble="true"]');
+          bubbles.forEach((bubble) => {
+            if (bubble instanceof HTMLElement) {
+              const style = window.getComputedStyle(bubble);
+              const currentPaddingTop = parseFloat(style.paddingTop) || 8;
+              const currentPaddingBottom = parseFloat(style.paddingBottom) || 8;
+
+              // Shift content up by reducing top padding and adding to bottom
+              // This maintains the bubble size roughly but moves content up
+              bubble.style.paddingTop = `${Math.max(0, currentPaddingTop - 5)}px`;
+              bubble.style.paddingBottom = `${currentPaddingBottom + 5}px`;
+            }
+          });
+
+          // Fix for button text alignment
+          const buttons = clonedDoc.querySelectorAll('[data-export-button="true"]');
+          buttons.forEach((btn) => {
+            if (btn instanceof HTMLElement) {
+              const style = window.getComputedStyle(btn);
+              const currentPaddingTop = parseFloat(style.paddingTop) || 6; // Default py-1.5 is 6px
+              const currentPaddingBottom = parseFloat(style.paddingBottom) || 6;
+
+              // Shift button text up
+              btn.style.paddingTop = `${Math.max(0, currentPaddingTop - 3)}px`;
+              btn.style.paddingBottom = `${currentPaddingBottom + 3}px`;
+              // Ensure flex alignment is centered
+              btn.style.display = 'flex';
+              btn.style.alignItems = 'center';
+            }
+          });
+        }
       });
 
       const link = document.createElement('a');
@@ -304,7 +336,7 @@ export default function Index() {
 
         {/* Main Content Scroll Area */}
         <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="container mx-auto px-4 py-8 max-w-2xl">
             <h1 className={`text-2xl font-bold text-center mb-8 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
               Ready, steady, chat!
             </h1>

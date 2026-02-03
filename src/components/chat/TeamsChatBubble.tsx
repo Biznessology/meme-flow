@@ -42,6 +42,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
               {message.buttons?.map((button, index) => (
                 <button
                   key={index}
+                  data-export-button="true"
                   className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${isDarkMode
                     ? 'border-teams-purple text-teams-purple hover:bg-teams-purple hover:text-white'
                     : 'border-teams-purple text-teams-purple hover:bg-teams-purple hover:text-white'
@@ -195,6 +196,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
                       {element.type === 'date' && (
                         <Button
                           variant="outline"
+                          data-export-button="true"
                           className={`w-full justify-start text-left font-normal h-8 text-sm ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white'
                             }`}
                         >
@@ -223,6 +225,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
                   {message.buttons.map((button, index) => (
                     <button
                       key={index}
+                      data-export-button="true"
                       className="px-3 py-1.5 bg-teams-purple text-white text-xs rounded font-medium hover:bg-teams-purple-dark transition-colors"
                     >
                       {button}
@@ -243,6 +246,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
             <Popover>
               <PopoverTrigger asChild>
                 <button
+                  data-export-button="true"
                   className={`flex items-center gap-2 px-3 py-2 rounded border text-sm w-full justify-start ${isDarkMode
                     ? 'border-gray-500 bg-gray-700 text-gray-200'
                     : 'border-gray-300 bg-white text-gray-700'
@@ -305,7 +309,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
 
       default:
         return (
-          <p className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+          <p className={`text-sm m-0 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
             {message.content}
           </p>
         );
@@ -340,7 +344,8 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
       )}
 
       <div
-        className={`max-w-[85%] rounded-lg px-4 py-2 whitespace-pre-wrap ${isUser
+        data-export-bubble="true"
+        className={`max-w-[85%] rounded-lg px-4 py-2 whitespace-pre-wrap flex flex-col gap-0.5 leading-normal ${isUser
           ? isDarkMode
             ? 'bg-teams-sender-dark text-white'
             : 'bg-teams-sender text-gray-800'
@@ -350,7 +355,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
           }`}
       >
         {message.type !== 'typing' && (
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2">
             <span className={`font-semibold text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               {message.senderName}
             </span>
