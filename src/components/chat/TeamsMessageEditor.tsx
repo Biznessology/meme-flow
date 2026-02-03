@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { ChatMessage, MessageType } from '@/types/chat';
+import { useState } from 'react';
+import { ChatMessage, MessageType, CardElement, CardElementType } from '@/types/chat';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface TeamsMessageEditorProps {
   type: MessageType;
@@ -35,6 +35,7 @@ export function TeamsMessageEditor({
   const [cardTitle, setCardTitle] = useState(initialData?.cardTitle || 'Card Title');
   const [cardDescription, setCardDescription] = useState(initialData?.cardDescription || 'Card description goes here');
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
+  const [cardElements, setCardElements] = useState<CardElement[]>(initialData?.cardElements || []);
 
   const inputClass = isDarkMode
     ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400'
@@ -63,7 +64,7 @@ export function TeamsMessageEditor({
       message.cardTitle = cardTitle;
       message.cardDescription = cardDescription;
       message.buttons = buttons.filter(b => b.trim());
-      message.cardImage = 'gradient';
+      message.cardElements = cardElements;
     }
     if (type === 'image') {
       message.imageUrl = imageUrl;
@@ -86,6 +87,38 @@ export function TeamsMessageEditor({
     const newItems = [...listItems];
     newItems[index] = value;
     setListItems(newItems);
+  };
+
+  const addCardElement = (type: CardElementType) => {
+    setCardElements([
+      ...cardElements,
+      {
+        id: Date.now().toString(),
+        type,
+        label: `New ${type}`,
+        placeholder: '',
+        options: type === 'dropdown' ? 'Option 1, Option 2' : '',
+        value: type === 'checkbox' ? false : ''
+      }
+    ]);
+  };
+
+  const removeCardElement = (index: number) => {
+    setCardElements(cardElements.filter((_, i) => i !== index));
+  };
+
+  const updateCardElement = (index: number, updates: Partial<CardElement>) => {
+    const newElements = [...cardElements];
+    newElements[index] = { ...newElements[index], ...updates };
+    setCardElements(newElements);
+  };
+
+  const moveCardElement = (index: number, direction: 'up' | 'down') => {
+    if ((direction === 'up' && index === 0) || (direction === 'down' && index === cardElements.length - 1)) return;
+    const newElements = [...cardElements];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    [newElements[index], newElements[targetIndex]] = [newElements[targetIndex], newElements[index]];
+    setCardElements(newElements);
   };
 
   return (
@@ -204,6 +237,78 @@ export function TeamsMessageEditor({
               className={`mt-1 ${inputClass}`}
               rows={2}
             />
+          </div>
+
+          <div>
+            <Label className={labelClass}>Card Elements</Label>
+            <div className="space-y-4 mt-2">
+              {cardElements.map((element, index) => (
+                <div key={element.id} className={`p-3 rounded border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className={`text-xs font-semibold uppercase ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{element.type}</span>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => moveCardElement(index, 'up')}>
+                        <ArrowUp className="w-3 h-3" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => moveCardElement(index, 'down')}>
+                        <ArrowDown className="w-3 h-3" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-red-500" onClick={() => removeCardElement(index)}>
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Input
+                      value={element.label}
+                      onChange={(e) => updateCardElement(index, { label: e.target.value })}
+                      placeholder="Label"
+                      className={`h-8 ${inputClass}`}
+                    />
+
+                    {(element.type === 'input' || element.type === 'textarea') && (
+                      <Input
+                        value={element.placeholder}
+                        onChange={(e) => updateCardElement(index, { placeholder: e.target.value })}
+                        placeholder="Placeholder"
+                        className={`h-8 ${inputClass}`}
+                      />
+                    )}
+
+                    {element.type === 'dropdown' && (
+                      <Input
+                        value={element.options}
+                        onChange={(e) => updateCardElement(index, { options: e.target.value })}
+                        placeholder="Options (comma separated)"
+                        className={`h-8 ${inputClass}`}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-3">
+              <Button variant="outline" size="sm" onClick={() => addCardElement('text')} className="text-xs">
+                <Plus className="w-3 h-3 mr-1" /> Text
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => addCardElement('input')} className="text-xs">
+                <Plus className="w-3 h-3 mr-1" /> Input
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => addCardElement('textarea')} className="text-xs">
+                <Plus className="w-3 h-3 mr-1" /> Area
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => addCardElement('dropdown')} className="text-xs">
+                <Plus className="w-3 h-3 mr-1" /> Drop
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => addCardElement('date')} className="text-xs">
+                <Plus className="w-3 h-3 mr-1" /> Date
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => addCardElement('checkbox')} className="text-xs">
+                <Plus className="w-3 h-3 mr-1" /> Check
+              </Button>
+            </div>
           </div>
         </div>
       )}

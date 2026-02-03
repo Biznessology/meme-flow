@@ -1,10 +1,14 @@
 import { ChatMessage } from '@/types/chat';
-import { Calendar as CalendarIcon, Check, Trash2, Edit2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Check, Trash2, Edit2, GripVertical } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 interface TeamsChatBubbleProps {
   message: ChatMessage;
@@ -133,9 +137,7 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
         return (
           <div className={`rounded-lg overflow-hidden border ${isDarkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-white'
             }`}>
-            {message.cardImage && (
-              <div className="h-32 bg-gradient-to-br from-teams-purple to-purple-400" />
-            )}
+
             <div className="p-3">
               <h4 className={`font-semibold text-sm mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 {message.cardTitle}
@@ -143,6 +145,79 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
               <p className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {message.cardDescription}
               </p>
+
+              {/* Adaptive Elements */}
+              {message.cardElements && message.cardElements.length > 0 && (
+                <div className="mt-3 space-y-3">
+                  {message.cardElements.map((element) => (
+                    <div key={element.id} className="space-y-1">
+                      {element.type !== 'checkbox' && (
+                        <Label className={`text-xs font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {element.label}
+                        </Label>
+                      )}
+
+                      {element.type === 'text' && (
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {element.value as string || element.placeholder || 'Text content'}
+                        </p>
+                      )}
+
+                      {element.type === 'input' && (
+                        <Input
+                          placeholder={element.placeholder}
+                          className={`h-8 text-sm ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white'}`}
+                        />
+                      )}
+
+                      {element.type === 'textarea' && (
+                        <Textarea
+                          placeholder={element.placeholder}
+                          className={`min-h-[60px] text-sm ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white'}`}
+                        />
+                      )}
+
+                      {element.type === 'dropdown' && (
+                        <Select>
+                          <SelectTrigger className={`h-8 text-sm ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white'}`}>
+                            <SelectValue placeholder="Select..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {element.options?.split(',').map(opt => (
+                              <SelectItem key={opt.trim()} value={opt.trim()}>
+                                {opt.trim()}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+
+                      {element.type === 'date' && (
+                        <Button
+                          variant="outline"
+                          className={`w-full justify-start text-left font-normal h-8 text-sm ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white'
+                            }`}
+                        >
+                          <CalendarIcon className="mr-2 h-3 w-3" />
+                          <span>Pick a date</span>
+                        </Button>
+                      )}
+
+                      {element.type === 'checkbox' && (
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id={element.id} />
+                          <Label
+                            htmlFor={element.id}
+                            className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                          >
+                            {element.label}
+                          </Label>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
               {message.buttons && message.buttons.length > 0 && (
                 <div className="flex gap-2 mt-3">
                   {message.buttons.map((button, index) => (
@@ -238,7 +313,13 @@ export function TeamsChatBubble({ message, isDarkMode, onDelete, onUpdate, onEdi
   };
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} group relative items-start gap-2`}>
+    <div
+      className={`flex ${isUser ? 'justify-end' : 'justify-start'} group relative items-start gap-2`}
+      draggable={true} // Although parent handles drag, having this attribute helps visuals
+    >
+      <div className="self-center opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing p-1 text-gray-400">
+        <GripVertical className="w-4 h-4" />
+      </div>
       {!isUser && (
         <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity self-center">
           <button

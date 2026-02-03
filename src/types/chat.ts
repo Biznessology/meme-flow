@@ -16,17 +16,37 @@ export interface ChatMessage {
   buttons?: string[];
   listItems?: string[];
   selectedItems?: number[];
+  allowOther?: boolean;
+  isOtherSelected?: boolean;
+  otherText?: string;
   cardTitle?: string;
   cardDescription?: string;
   cardImage?: string;
   imageUrl?: string;
   selectedDate?: string;
   timestamp?: string;
-  allowOther?: boolean;
-  otherText?: string;
-  isOtherSelected?: boolean;
+
   startDate?: Date;
   endDate?: Date;
+  cardElements?: CardElement[];
+}
+
+export type CardElementType = 'text' | 'input' | 'textarea' | 'date' | 'dropdown' | 'checkbox';
+
+export interface CardElement {
+  id: string;
+  type: CardElementType;
+  label: string;
+  placeholder?: string;
+  options?: string; // Comma separated for dropdown
+  value?: string | boolean;
+}
+
+export interface ChatScenario {
+  id: string;
+  name: string;
+  messages: ChatMessage[];
+  lastModified: number;
 }
 
 export interface ChatTheme {
